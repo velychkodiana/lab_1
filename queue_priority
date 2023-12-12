@@ -1,0 +1,70 @@
+#include <iostream>
+#include <vector>
+#include <queue>
+
+template <typename T>
+class TreeNode {
+public:
+    T data;
+    int priority;
+    std::vector<TreeNode<T>*> children;
+
+    TreeNode(T value, int p) : data(value), priority(p) {}
+
+    bool operator<(const TreeNode<T>& other) const {
+        return priority < other.priority;
+    }
+};
+
+template <typename T>
+class PriorityQueue {
+private:
+    std::priority_queue<TreeNode<T>> pq;
+
+public:
+    // Додавання елементу з пріоритетом
+    void enqueue(T value, int priority) {
+        TreeNode<T>* newNode = new TreeNode<T>(value, priority);
+        pq.push(*newNode);
+    }
+
+    // Забирання елементу з найвищим пріоритетом
+    void dequeue() {
+        if (pq.empty()) {
+            std::cout << "Queue is empty.\n";
+            return;
+        }
+        TreeNode<T> topNode = pq.top();
+        pq.pop();
+    }
+
+    // Подивитись наступний елемент без видалення
+    T peek() {
+        if (pq.empty()) {
+            std::cerr << "Queue is empty.\n";
+            exit(EXIT_FAILURE);
+        }
+        return pq.top().data;
+    }
+
+    // Перевірити, чи черга порожня
+    bool isEmpty() {
+        return pq.empty();
+    }
+};
+
+int main() {
+    PriorityQueue<int> priorityQueue;
+
+    priorityQueue.enqueue(10, 1);
+    priorityQueue.enqueue(20, 2);
+    priorityQueue.enqueue(30, 3);
+    priorityQueue.enqueue(40, 4);
+
+    while (!priorityQueue.isEmpty()) {
+        std::cout << "Next element: " << priorityQueue.peek() << std::endl;
+        priorityQueue.dequeue();
+    }
+
+    return 0;
+}
