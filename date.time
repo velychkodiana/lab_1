@@ -1,0 +1,100 @@
+#include <iostream>
+#include <ctime>
+#include <iomanip>
+
+using namespace std;
+
+bool isValidDate(int year, int month, int day) {
+    if (month < 1 || month > 12) {
+        return false;
+    }
+
+    int daysInMonth = 31;
+
+    if (month == 4 || month == 6 || month == 9 || month == 11) {
+        daysInMonth = 30;
+    } else if (month == 2) {
+        if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) {
+            daysInMonth = 29;
+        } else {
+            daysInMonth = 28;
+        }
+    }
+
+    return (day >= 1 && day <= daysInMonth);
+}
+
+bool isValidTime(int hours, int minutes, int seconds) {
+    return (hours >= 0 && hours < 24 && minutes >= 0 && minutes < 60 && seconds >= 0 && seconds < 60);
+}
+
+string getDayOfWeek(int year, int month, int day) {
+    tm inputTime = {0, 0, 0, day, month - 1, year - 1900, 0, 0, -1};
+    time_t tt = mktime(&inputTime);
+    tm* local_tm = localtime(&tt);
+
+    const char* dayOfWeekStrings[] = {"понеділок", "вівторок", "середа", "четвер", "п'ятниця", "субота", "неділя"};
+    return dayOfWeekStrings[local_tm->tm_wday];
+}
+
+int getWeekNumberInMonth(int year, int month, int day) {
+    tm inputTime = {0, 0, 0, day, month - 1, year - 1900, 0, 0, -1};
+    time_t tt = mktime(&inputTime);
+    tm* local_tm = localtime(&tt);
+
+    return (local_tm->tm_mday - 1) / 7 + 1;
+}
+
+int getWeekNumberInYear(int year, int month, int day) {
+    tm inputTime = {0, 0, 0, day, month - 1, year - 1900, 0, 0, -1};
+    time_t tt = mktime(&inputTime);
+    tm* local_tm = localtime(&tt);
+
+    int weekStartDay = 1; // розрахунок дня тижня, з якого починається рік 
+    tm startOfYear = {0, 0, 0, 1, 0, year - 1900, 0, 0, -1};
+    time_t ttStartOfYear = mktime(&startOfYear);
+    tm* local_tmStartOfYear = localtime(&ttStartOfYear);
+
+    int daysFromWeekStart = local_tm->tm_yday - (local_tmStartOfYear->tm_wday + 7 - weekStartDay) % 7;
+
+    return (daysFromWeekStart + 7) / 7 + 1;
+}
+
+int main() {
+    // ввід дати та часу
+    int year, month, day, hours, minutes, seconds;
+
+    cout << "введіть рік: ";
+    cin >> year;
+    cout << "введіть місяць: ";
+    cin >> month;
+    cout << "введіть день: ";
+    cin >> day;
+    cout << "введіть години: ";
+    cin >> hours;
+    cout << "введіть хвилини: ";
+    cin >> minutes;
+    cout << "введіть секунди: ";
+    cin >> seconds;
+
+    // Перевірка правильності дати та часу
+    if (!isValidDate(year, month, day) || !isValidTime(hours, minutes, seconds)) {
+        cout << "Invalid date or time." << endl;
+        return 1;
+    }
+
+    //створюєм об'єкт tm
+    tm inputTime = {0, minutes, hours, day, month - 1, year - 1900, 0, 0, -1};
+    time_t tt = mktime(&inputTime);
+
+    // виводимо дату та час
+    cout << "дата і час: " << put_time(&inputTime, "%Y-%m-%d %H:%M:%S") << endl;
+
+    // обчислюємо та виводимо день тижня
+    cout << "день тижня: " << getDayOfWeek(year, month, day) << endl;
+
+    // обчислюємо та виводимо номер тижня в місяці
+    cout << "номер тижня у місяці: " << getWeekNumberInMonth(year, month, day) << endl;
+    
+    return 0;
+}
